@@ -1,12 +1,16 @@
 #!/bin/bash
 set -e
 
+VM_ID="${1:-1}"
+KERNEL="${2:-"$HOME/firecracker-original/build/kernel/linux-5.10/vmlinux-5.10-x86_64.bin"}"
+CUR_DIR="$(pwd)"
+ROOTFS="${CUR_DIR}/assets/rootfs3.ext4"
 
-KERNEL="/home/lxinyi6/Main/assets/vmlinux-5.10.bin"
-ROOTFS="/home/lxinyi6/Main/assets/rootfs.ext4"
-
-TAP_DEV="tap0"
-TAP_IP="172.16.0.1"
+TAP_DEV="tap${VM_ID}"
+TAP_IP="$(printf '172.16.%s.%s' $(((4 * VM_ID +1) / 256)) $(((4 * VM_ID +1) % 256)))"
+VM_IP="$(printf '172.16.%s.%s' $(((4 * VM_ID +2) / 256)) $(((4 * VM_ID +2) % 256)))"
+echo $TAP_IP
+echo $VM_IP
 MASK_SHORT="/30"
 
 # Setup network interface
@@ -20,12 +24,12 @@ sudo ip link set dev "$TAP_DEV" up
 # checked that it is already 1, by cat-ing the file
 #sudo sh -c "echo 1 > /proc/sys/net/ipv4/ip_forward"
 
-API_SOCKET="./firecracker.socket"
-LOGFILE="./firecracker.log"
+API_SOCKET="${CUR_DIR}/firecracker${VM_ID}.socket"
+LOGFILE="${CUR_DIR}/logs/firecracker.log"
 rm -f $LOGFILE
 
 # Create log file
-touch $LOGFILE
+mkdir -p "${CUR_DIR}/logs/" && touch $LOGFILE
 
 # Set log file
 sudo curl -X PUT --unix-socket "${API_SOCKET}" \
@@ -38,7 +42,8 @@ sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     "http://localhost/logger"
 
 
-KERNEL_BOOT_ARGS="console=ttyS0 reboot=k panic=1 pci=off ip=172.16.0.2:172.16.0.1:172.16.0.1:255.255.255.252::eth0:off"
+#KERNEL_BOOT_ARGS="console=ttyS0 reboot=k panic=1 pci=off ip=172.16.0.2:172.16.0.1:172.16.0.1:255.255.255.252::eth0:off"
+KERNEL_BOOT_ARGS="console=ttyS0 reboot=k panic=1 cgroup_no_v1="all" cgroup.memory=nokmem pci=off ip=${VM_IP}:${TAP_IP}:${TAP_IP}:255.255.255.252::eth0:off"
 
 ARCH=$(uname -m)
 
@@ -47,7 +52,7 @@ if [ ${ARCH} = "aarch64" ]; then
 fi
 
 # Set boot source
-sudo curl --trace curl_logs/boot.log -X PUT --unix-socket "${API_SOCKET}" \
+sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     --data "{
         \"kernel_image_path\": \"${KERNEL}\",
         \"boot_args\": \"${KERNEL_BOOT_ARGS}\"
@@ -56,7 +61,7 @@ sudo curl --trace curl_logs/boot.log -X PUT --unix-socket "${API_SOCKET}" \
 
 
 # Set rootfs
-sudo curl --trace curl_logs/rootfs -X PUT --unix-socket "${API_SOCKET}" \
+sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     --data "{
         \"drive_id\": \"rootfs\",
         \"path_on_host\": \"${ROOTFS}\",
@@ -71,7 +76,7 @@ sudo curl --trace curl_logs/rootfs -X PUT --unix-socket "${API_SOCKET}" \
 FC_MAC="06:00:AC:10:00:02"
 
 # Set network interface
-sudo curl --trace curl_logs/network -X PUT --unix-socket "${API_SOCKET}" \
+sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     --data "{
         \"iface_id\": \"net1\",
         \"guest_mac\": \"$FC_MAC\",
@@ -87,7 +92,7 @@ echo "starting microVM"
 sleep 0.1s
 
 # Start microVM
-sudo curl --trace curl_logs/start.log -X PUT --unix-socket "${API_SOCKET}" \
+sudo curl -X PUT --unix-socket "${API_SOCKET}" \
     --data "{
         \"action_type\": \"InstanceStart\"
     }" \
@@ -100,7 +105,7 @@ sleep 0.015s
 
 # SSH into the microVM
 #sudo ssh -i ./ubuntu-18.04.id_rsa 172.16.0.2
-ssh root@172.16.0.2
+ssh root@"${VM_IP}"
 
 # Use `root` for both the login and password.
 # Run `reboot` to exit.
