@@ -1,0 +1,27 @@
+- name: Build sisclient
+  hosts: sis1
+  tasks:
+    - name: Remove existing chromium.tar, if any
+      ansible.builtin.file:
+        path: "{{ sis_src }}/img/client/chromium.tar"
+        state: absent
+
+    - name: Remove existing chromium artefacts, if any
+      ansible.builtin.file:
+        path: "{{ sis_src }}/img/client/chromium"
+        state: absent
+
+    - name: Copy chromium-VER.tar to build client
+      ansible.builtin.copy:
+        dest: "{{ sis_src }}/img/client/chromium.tar"
+        remote_src: true
+        src: "{{ sis_src }}/img/browser-builder/chromium-{{ chromium_version }}.tar"
+        mode: '0644'
+
+    - name: Build client
+      ansible.builtin.make:
+        chdir: "{{ sis_src }}/img/client"
+        target: container
+        params:
+          MENLO_PROXY: "{{ menlo_proxy }}"
+      changed_when: true

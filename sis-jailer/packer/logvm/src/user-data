@@ -1,0 +1,73 @@
+#cloud-config
+users:
+  - name: sweishen-ladmin
+    gecos: Nicholas Sim
+    ssh_authorized_keys: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCR0qtxqpBf+S6ISsT3zqS6PinY49tK3ZP66l3ktStMH0MfSNc9RCw63EzBG1zxv7Gj4eHQF7IW5fPiCC1AAHMOM58PC0f559CYzccdpu5NMe6JHwgwBXmHQ0b1B8eBjFJXk1WeKbedCj37HRmrTPD8A+nNtkFvcBZyZzcJ4JzFpkofp8wQwEn2RNRmr0qdwLjPz/Pt6ozbDOyP8Xqu1fZpTEV57PmwNXrsspt+b9uj8D56mAgUDPHOGtt5Bbunzb4GXRBULHTcotLz1zN0gcT2+M4PPZOPuWa5OcfGVYxRAM1LaclCk3CzzDaWP3+wQiZ/N58ZM80HBDXCpkza3WfHVCv/1VSQdFmyskgzU1DLTSAWFGgBA4qhtoAzA2FZu/KNf7cBqoquYjyDxHu1JIHBCz4VBWVaZoNn36Nfup9JieIsNv2ovAI/lxIUMXIk7dQQa1MDjuiQzQkDsSgYogeikZBspFO4Lst9HiecARrAJzEBcMwr5moHAfHsdy2E1z5omVQH0gkVdje6Y3N4iulkebk4LzEh8lVIHq19rn482wh86Ry2mc8Cvy15I81MeDNR9JQE31OMhmpf0cI0W8RXqHEZVjgW7KJy7D4kKvLKbYc+Gtyi9XlOpFHgTqAEd4G0YVj4fIieIvrUNLvgyJk2fWb6UT+De2BKcZ7a349wBw== sweishen@sis1.rt.dts.dso
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: wheel
+
+write_files:
+  - path: /etc/rsyslog.conf
+    content: |
+      module(load="imuxsock" SysSock.Use="off")
+      module(load="imjournal" StateFile="imjournal.state")
+      module(load="imtcp")
+      input(type="imtcp" port="514")
+      global(workDirectory="/var/lib/rsyslog")
+      module(load="builtin:omfile" Template="RSYSLOG_TraditionalFileFormat")
+      include(file="/etc/rsyslog.d/*.conf" mode="optional")
+
+  - path: /etc/rsyslog.d/forward.conf
+    content: |
+      if prifilt("*.warn") or ($fromhost-ip == "192.168.122.98")
+      then action(
+        type="omfwd"
+        queue.filename="fwdRule1"             # ensure unique
+        queue.maxdiskspace="1g"
+        queue.saveonshutdown="on"             # write out messages on shutdown
+        queue.type="LinkedList"               # run asynchronously
+        action.resumeRetryCount="-1"          # infinite retries if host down
+        Template="RSYSLOG_ForwardFormat"
+        Target="172.20.16.9"
+        Port="514"
+        Protocol="udp"
+      )
+
+  - path: /etc/rsyslog.d/local.conf
+    content: |
+      if prifilt("*.warn") or ($fromhost-ip == "192.168.122.98")
+      then action(
+        type="omfile"
+        file="/var/log/messages"
+      )
+
+  - path: /etc/sysconfig/network-scripts/ifcfg-enp1s0
+    content: |
+      BOOTPROTO=none
+      DEVICE=enp1s0
+      ONBOOT=yes
+      TYPE=Ethernet
+      USERCTL=no
+      PROXY_METHOD=none
+      BROWSER_ONLY=no
+      IPADDR=192.168.122.50
+      PREFIX=24
+      DEFROUTE=no
+      IPV4_FAILURE_FATAL=no
+      IPV6INIT=no
+      IPV6_DEFROUTE=yes
+      IPV6_FAILURE_FATAL=no
+      NAME="System enp1s0"
+      UUID=5a6e28a4-8150-4c0a-b94f-0ceca2dfea79
+      DNS1=172.20.10.2
+      DNS2=172.20.10.3
+
+  - path: /etc/sysconfig/network-scripts/route-enp1s0
+    content: |
+      ADDRESS0=0.0.0.0
+      NETMASK0=0.0.0.0
+      GATEWAY0=192.168.122.1
+      METRIC0=1
+
+runcmd:
+  - reboot

@@ -1,0 +1,58 @@
+- name: Export sisclient
+  hosts: sis1
+  tasks:
+    - name: Generate tempdir to export image
+      ansible.builtin.tempfile:
+        state: directory
+      register: tmpdir
+
+    - name: Export client
+      ansible.builtin.command:
+        argv:
+          - podman
+          - save
+          - "-o={{ tmpdir.path }}/sisclient.tar"
+          - localhost/sisclient
+      changed_when: true
+
+    - name: Create tempfile on localhost to hold image
+      ansible.builtin.tempfile:
+        state: directory
+      register: local_tmp
+      connection: local
+
+    - name: Save client to localhost
+      ansible.builtin.fetch:
+        src: "{{ tmpdir.path }}/sisclient.tar"
+        dest: "{{ local_tmp.path }}/"
+        flat: true
+
+    - name: Remove tempfile on sis1
+      ansible.builtin.file:
+        path: "{{ tmpdir.path }}"
+        state: absent
+
+- name: Push sisclient to mirror
+  become: true
+  hosts: sis1
+  tasks:
+    - name: Ensure directory exists
+      ansible.builtin.file:
+        path: /var/lib/mirror/sis
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Copy client
+      ansible.builtin.copy:
+        src: "{{ hostvars['sis1']['local_tmp']['path'] }}/sisclient.tar"
+        dest: /var/lib/mirror/sis/sisclient.tar
+        mode: '0644'
+        owner: root
+        group: root
+
+    - name: Remove file on localhost
+      ansible.builtin.file:
+        path: "{{ hostvars['sis1']['local_tmp']['path'] }}"
+        state: absent

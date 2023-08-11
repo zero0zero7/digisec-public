@@ -1,0 +1,10 @@
+#!/usr/bin/env -S sh -euxo pipefail
+
+CTR=$(podman run -d --rm -v "$(readlink -f $1):/crbuild:z" --tmpfs=/tmp:rw,nosuid,nodev,mode=1777 browser-builder sleep 999999999)
+printf "Started container %s\n" $CTR
+
+podman exec $CTR /opt/builder/build-chromium $2
+podman exec $CTR stat /tmp/out/chrome
+podman exec $CTR tar cf - --transform 's/^/chromium\//' -C /tmp/out chrome chrome-wrapper chrome_100_percent.pak chrome_200_percent.pak chrome_crashpad_handler icudtl.dat libEGL.so libGLESv2.so libvk_swiftshader.so libvulkan.so.1 locales/ MEIPreload/ nacl_helper nacl_helper_bootstrap nacl_irt_x86_64.nexe product_logo_48.png resources.pak v8_context_snapshot.bin vk_swiftshader_icd.json xdg-mime xdg-settings > chromium-$2.tar
+
+podman stop $CTR

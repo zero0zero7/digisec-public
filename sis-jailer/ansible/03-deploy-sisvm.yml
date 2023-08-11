@@ -1,0 +1,22 @@
+- hosts: sis2
+  become: true
+  tasks:
+    - name: Copy sisvm
+      ansible.builtin.copy:
+        src: /home/sweishen/work/sis/packer/sisvm/img/sisvm.qcow2
+        dest: /var/lib/libvirt/images/sisvm.qcow2
+        owner: qemu
+        group: qemu
+        mode: 0640
+    - name: Copy sisvm cidata
+      ansible.builtin.copy:
+        src: /home/sweishen/work/sis/packer/sisvm/out/cidata.iso
+        dest: /var/lib/libvirt/images/sisvm-cidata.iso
+        owner: qemu
+        group: qemu
+        mode: 0640
+    - name: Create sisvm snapshot
+      ansible.builtin.command: /usr/bin/qemu-img create -f qcow2 -F qcow2 -b /var/lib/libvirt/images/sisvm.qcow2 /var/lib/libvirt/images/sisvm-current.qcow2
+    - name: Install machine
+      ansible.builtin.command:
+        cmd: virt-install --name=sisvm --ram=131072 --vcpus=80 --disk path=/var/lib/libvirt/images/sisvm-current.qcow2,format=qcow2 --disk path=/var/lib/libvirt/images/sisvm-cidata.iso,device=cdrom --os-variant=rhel8-unknown --network network=sis,model=virtio --noautoconsole --import

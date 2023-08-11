@@ -1,0 +1,342 @@
+#cloud-config
+users:
+  - name: sweishen-ladmin
+    gecos: Nicholas Sim
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCR0qtxqpBf+S6ISsT3zqS6PinY49tK3ZP66l3ktStMH0MfSNc9RCw63EzBG1zxv7Gj4eHQF7IW5fPiCC1AAHMOM58PC0f559CYzccdpu5NMe6JHwgwBXmHQ0b1B8eBjFJXk1WeKbedCj37HRmrTPD8A+nNtkFvcBZyZzcJ4JzFpkofp8wQwEn2RNRmr0qdwLjPz/Pt6ozbDOyP8Xqu1fZpTEV57PmwNXrsspt+b9uj8D56mAgUDPHOGtt5Bbunzb4GXRBULHTcotLz1zN0gcT2+M4PPZOPuWa5OcfGVYxRAM1LaclCk3CzzDaWP3+wQiZ/N58ZM80HBDXCpkza3WfHVCv/1VSQdFmyskgzU1DLTSAWFGgBA4qhtoAzA2FZu/KNf7cBqoquYjyDxHu1JIHBCz4VBWVaZoNn36Nfup9JieIsNv2ovAI/lxIUMXIk7dQQa1MDjuiQzQkDsSgYogeikZBspFO4Lst9HiecARrAJzEBcMwr5moHAfHsdy2E1z5omVQH0gkVdje6Y3N4iulkebk4LzEh8lVIHq19rn482wh86Ry2mc8Cvy15I81MeDNR9JQE31OMhmpf0cI0W8RXqHEZVjgW7KJy7D4kKvLKbYc+Gtyi9XlOpFHgTqAEd4G0YVj4fIieIvrUNLvgyJk2fWb6UT+De2BKcZ7a349wBw== sweishen@sis1.rt.dts.dso
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCfhtl/MiE9PvXOMfw2bkLWY0/sGnUu6xWq8k7GJNUq3qRKFkPGrNtDg+e/ElM6SfXCY7q4PFzL1K+WxqwvPpkhHSUlYhVEbs1BQg226puWPfBmZPCz2sk34Ijy+JH7FgQnKfFwNF2kMuzwgkCEcq+kxDOaHcAvvOBQ4JYvWr+yhoCBOosD8QAcQ5HZ3jERHDb9s7zlZJqSVYIpwuw7BPV6tPrVaaIkSuNq16Lekz60dq+ATuS6AGi5/k1Xsu4/uV0vhHLL/jpUsmR4XwuSO0uKLQ3LppmPmD1dBWUkYMLQewi10y+nOJ4jv5++MAstspHQNNialiNF+M4vn2E9yy6Qr3aIabF+6+q+JoIF1PxZooVQxG3cYah8DG6A5gauyO0G142Ug6rmhIciHI6Qlc0Z0wqKCoGXpDG+GlJMnAOxqeoI4EApgojVIRkGgFM+AcdS6THHyGT5Gj+GUge90ETo7G/UTDMq2OfJxWBA3vRbLyt1GYXolZA6Mq2h1hDjOJbOfJJT5Ncw1ssr1ozSuRsWemQznStmT2lya2Gq/grJEScLB7g2MaWuIUU6//vcbGKyF8EJMZC7MqxlAEF07Z2tfCYQ4rHchZXR8MtdBkFVoZdr72ihkVEUr9kaRIbOMoLHv2uL4MI5rksoO2q9LSJ0lPvux3xEEQkTclDkJIryQQ== sweishen@ec-d22009959.rt.dts.dso
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: wheel
+
+  - name: tyihang-ladmin
+    gecos: Tay Yi Hang
+    ssh_authorized_keys: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCOgCAHh+ypZ+2QtC5PnJVNE3z4WeaKdwRcj+yyJp4fcIUCPZKimKszacwnX6ydizq00UMbqdvAj3dTTD05vuXSRBzs2Iy7F0hB8BuOVmkAjkhlUVN32jJhfDQSQK27tXHoDrf6EnHBnAs5Xl9hvdnH7AFdBZ0zQcTFD//H/kQm7v3zJI4gBsJkEM7CxCREs/FM/M3Rlwtl2wxvbji/qBpUGZ8+Wp20TisiGTx08FjNq6sN7rt0tjSx4c9NcaibtAFAxRhR54VQNmqrC9vN8CMmOATtEXU4b1ulEuAj2HCVgQbmTLFkMEKestIKC4NLnxLZWp6f77mXk+5nCf4TQ4CvrUf6lIBhJK9HNQbyRf7opgnDke+ogf2HhWdt7Da0gxpTViTLahykfMKftSiZfUswA2pv9tgwCQidtSxJXtzwI7UhzdI+aH1P6HcugfIJHryWy2dTrSQZd7prmK/klOYllqJ5FGNyproCbk9PWZRy5Q9IAmRRM3Z6LfBgCb67OKuiogtZqkO18j7t2M41ADirvQKMkaxm9pgE9HNozQluWciw/GbtPiLRgAdVllw3fCm8zPRiKGhAO/GvXyrt6eWjly7o2vBcrT2nZfeR/dHThPPF81ZETBgwIHmzl7rfEpo3sGQmW9ahAtUAVij27RRn3s71xp0ceFZ3QgHywnBMYw== tyihang@d17001047.rt.dts.dso
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: wheel
+
+  - name: kyongjun-ladmin
+    gecos: Rick Koh
+    ssh_authorized_keys:
+      - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQC+k7NeAQ56cjocbHX1pV0HogpJBXqLbXNWmlG0/OyfXipfKPqag7F5L7oK8pikq6vebE2ZFwIZoXSEjSFGWnWlNQyyzIexgBqawntLxFYOmyKgZBlxf9peXUd11Pl02mgipjzlzZIQluT3JLsuN0PeDIj+D4vLRbuGH5xu8fFhVGl8RZIxbLrWBtP2dQOHZk7Hnf+g0WG2XhIEK1zeYvW6ffO7nWWjRjCp/m+lZq3U+vcK0C096c6RXN6e4bT9TfCuyxaBoiYvb9+FgLGaQoNzvavz4qizAWpQks34ANjguNjd7ZOFRWF/TUfWXGjs2G0jXvBpn1KpqRfQJfEU28qHXuMhHMi5pxDiiEM59SNq4k4fgMe6ovgLICgDpEzFAtOefu7B1XF+pABb8uCybZojQX08yzXSn396yfphXJlt5pgZD+pDZ3et2pVwRL66NvzJ7Xw39esvfRqTNopukoYCuRUsktCEZUKGkp7V12TDNgEvNCHb4kGmwiIYdFy1w481QercDYS71kNis/KrpDe7gIV0BI7P7J0g5pNs9zEoyppmZe/poWbZVOAK1NQfikcttlcKPmJz8SgCBKM9ckPqOkWNJekDsl6GbT5+2/t2nMakVR/z53LJOgsXwj5GI+vMIWbBqXlqfGMl6C+m09AU8J0tsjWjrXFq2gDaq/akJQ== kyongjun@ec-d22009964.rt.dts.dso
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    groups: wheel
+
+  - name: browsers
+    shell: /sbin/nologin
+    uid: "6003"
+
+  - name: guacamole
+    shell: /sbin/nologin
+    uid: "6004"
+
+  - name: guacd
+    shell: /sbin/nologin
+    uid: "6005"
+
+write_files:
+  - path: /etc/subuid
+    content: |
+      nginx:2065536:65536
+      browsers:2131072:1048576
+      guacamole:3179648:65536
+      guacd:3245184:65536
+    owner: root:root
+    permissions: '0644'
+
+  - path: /etc/subgid
+    content: |
+      nginx:2065536:65536
+      browsers:2131072:1048576
+      guacamole:3179648:65536
+      guacd:3245184:65536
+    owner: root:root
+    permissions: '0644'
+
+  - path: /etc/systemd/system/sis-spawn.service
+    content: |
+      [Unit]
+      Description=SIS container browser spawner
+      StartLimitIntervalSec=10
+      StartLimitBurst=3
+      Wants=network-online.target
+      Wants=load-sisclient.service
+      After=network-online.target
+      After=load-sisclient.service
+      [Service]
+      Type=simple
+      User=browsers
+      Group=browsers
+      Environment=RUST_LOG=info
+      Environment=GUAC_ENCRYPTED_JSON_SECRET={{ GUAC_ENCRYPTED_JSON_SECRET }}
+      Environment=GUAC_HOST={{ GUAC_HOST }}
+      Environment=CTR_BIND_ADDR=192.168.122.98
+      SyslogLevel=notice
+      ExecStart=/usr/bin/sis-spawn
+      [Install]
+      WantedBy=default.target
+
+  - path: /etc/systemd/system/guacamole.service
+    content: |
+      [Unit]
+      Description=Guacamole
+      StartLimitIntervalSec=10
+      StartLimitBurst=3
+      Wants=network-online.target
+      Wants=load-guacamole.service
+      After=network-online.target
+      After=load-guacamole.service
+      [Service]
+      #Type=notify
+      Type=simple
+      User=guacamole
+      Group=guacamole
+      Environment=PODMAN_SYSTEMD_UNIT=%n
+      Environment=XDG_RUNTIME_DIR=/run/user/6004
+      Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/6004/bus
+      Restart=on-failure
+      TimeoutStopSec=70
+      ExecStartPre=/bin/rm -f /tmp/%n.ctr-id
+      ExecStart=/usr/bin/podman run \
+        --cidfile=/tmp/%n.ctr-id \
+        --cgroups=no-conmon \
+        --rm \
+        --replace \
+        --sdnotify=conmon \
+        -e GUACD_HOSTNAME=host.containers.internal \
+        -e GUAC_JSON_KEY={{ GUAC_ENCRYPTED_JSON_SECRET }} \
+        -p 8080:8080 \
+        --name guacamole \
+        localhost/local-guacamole
+      ExecStop=/usr/bin/podman stop --ignore --cidfile=/tmp/%n.ctr-id
+      ExecStopPost=/usr/bin/podman rm -f --ignore --cidfile=/tmp/%n.ctr-id
+      NotifyAccess=all
+      [Install]
+      WantedBy=default.target
+
+  - path: /etc/systemd/system/guacd.service
+    content: |
+      [Unit]
+      Description=guacd
+      StartLimitIntervalSec=10
+      StartLimitBurst=3
+      Wants=network-online.target
+      Wants=load-guacd.service
+      After=network-online.target
+      After=load-guacd.service
+      [Service]
+      #Type=notify
+      Type=simple
+      User=guacd
+      Group=guacd
+      Environment=PODMAN_SYSTEMD_UNIT=%n
+      Environment=XDG_RUNTIME_DIR=/run/user/6005
+      Environment=DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/6005/bus
+      Restart=on-failure
+      TimeoutStopSec=70
+      ExecStartPre=/bin/rm -f /tmp/%n.ctr-id
+      ExecStart=/usr/bin/podman run \
+        --cidfile=/tmp/%n.ctr-id \
+        --cgroups=no-conmon \
+        --rm \
+        --replace \
+        --sdnotify=conmon \
+        --name guacd \
+        -p 4822:4822 \
+        docker.io/guacamole/guacd:latest
+      ExecStop=/usr/bin/podman stop --ignore --cidfile=/tmp/%n.ctr-id
+      ExecStopPost=/usr/bin/podman rm -f --ignore --cidfile=/tmp/%n.ctr-id
+      NotifyAccess=all
+      [Install]
+      WantedBy=default.target
+
+  - path: /etc/systemd/system/load-sisclient.service
+    content: |
+      [Unit]
+      Description=Import sisclient image
+      [Service]
+      TimeoutStartSec=90
+      Type=oneshot
+      User=browsers
+      Group=browsers
+      ExecStart=/usr/bin/sh -c '/usr/bin/podman images | /usr/bin/grep sisclient || /usr/bin/podman load < /var/lib/ctr/sisclient.tar'
+
+  - path: /etc/systemd/system/load-guacamole.service
+    content: |
+      [Unit]
+      Description=Import guacamole image
+      [Service]
+      TimeoutStartSec=90
+      Type=oneshot
+      User=guacamole
+      Group=guacamole
+      ExecStart=/usr/bin/sh -c '/usr/bin/podman images | /usr/bin/grep guacamole || /usr/bin/podman load < /var/lib/ctr/guacamole.tar'
+
+  - path: /etc/systemd/system/load-guacd.service
+    content: |
+      [Unit]
+      Description=Import guacamole image
+      [Service]
+      TimeoutStartSec=90
+      Type=oneshot
+      User=guacd
+      Group=guacd
+      ExecStart=/usr/bin/sh -c '/usr/bin/podman images | /usr/bin/grep guacd || /usr/bin/podman load < /var/lib/ctr/guacd.tar'
+
+  - path: /etc/audit/plugins.d/syslog.conf
+    content: |
+      active = yes
+      direction = out
+      path = /sbin/audisp-syslog
+      type = always
+      args = LOG_INFO LOG_LOCAL6
+      format = string
+
+  - path: /etc/rsyslog.conf
+    content: |
+      module(load="imuxsock"      # support local system logging (e.g. via logger command)
+             SysSock.Use="off")   # Turn off message reception via local log socket;
+      module(load="imjournal"             # provides access to the systemd journal
+             StateFile="imjournal.state") # File to store the position in the journal
+      module(load="immark") # provides --MARK-- message capability
+      global(workDirectory="/var/lib/rsyslog")
+      module(load="builtin:omfile" Template="RSYSLOG_TraditionalFileFormat")
+      *.info;mail.none;authpriv.none;cron.none                /var/log/messages
+      authpriv.*                                              /var/log/secure
+      mail.*                                                  -/var/log/maillog
+      cron.*                                                  /var/log/cron
+      *.emerg                                                 :omusrmsg:*
+      uucp,news.crit                                          /var/log/spooler
+      local7.*                                                /var/log/boot.log
+      module(load="imfile")
+      ruleset(name="forward50") {
+      action(type="omfwd" queue.filename="fwd50" queue.maxdiskspace="1g" queue.saveonshutdown="on" queue.type="LinkedList" action.resumeRetryCount="-1" Template="RSYSLOG_ForwardFormat" Target="192.168.122.50" Port="514" Protocol="tcp")
+      }
+      input(type="imfile" File="/var/log/firewalld" Tag="firewalld" Ruleset="forward50")
+      input(type="imfile" File="/var/log/cron" Tag="cron" Ruleset="forward50")
+      include(file="/etc/rsyslog.d/*.conf" mode="optional")
+
+  - path: /etc/rsyslog.d/forward.conf
+    content: |
+      if prifilt("*.notice") or prifilt("local6.*")
+      then action(
+        type="omfwd"
+        queue.filename="fwdRule1"             # ensure unique
+        queue.maxdiskspace="1g"
+        queue.saveonshutdown="on"             # write out messages on shutdown
+        queue.type="LinkedList"               # run asynchronously
+        action.resumeRetryCount="-1"          # infinite retries if host down
+        Template="RSYSLOG_ForwardFormat"
+        Target="192.168.122.50"
+        Port="514"
+        Protocol="tcp"
+      )
+  - path: /etc/firewalld/firewalld.conf
+    content: |
+      DefaultZone=public
+      AllowZoneDrifting=no
+
+  - path: /etc/sysconfig/network-scripts/ifcfg-enp1s0
+    content: |
+      BOOTPROTO=none
+      DEVICE=enp1s0
+      ONBOOT=yes
+      TYPE=Ethernet
+      USERCTL=no
+      PROXY_METHOD=none
+      BROWSER_ONLY=no
+      IPADDR=192.168.122.98
+      PREFIX=24
+      DEFROUTE=no
+      IPV4_FAILURE_FATAL=no
+      IPV6INIT=no
+      IPV6_DEFROUTE=yes
+      IPV6_FAILURE_FATAL=no
+      NAME="System enp1s0"
+      UUID=c0ab6b8c-0eac-a1b4-1c47-efe4b2d1191f
+      DNS1=172.20.10.2
+      DNS2=172.20.10.3
+
+  - path: /etc/sysconfig/network-scripts/route-enp1s0
+    content: |
+      ADDRESS0=0.0.0.0
+      NETMASK0=0.0.0.0
+      GATEWAY0=192.168.122.1
+      METRIC0=1
+
+  - path: /etc/systemd/system/user@.service.d/delegate.conf
+    content: |
+      [Service]
+      Delegate=cpu cpuset io memory pids
+
+  - path: /etc/systemd/system/user-.slice.d/override.conf
+    content: |
+      [Slice]
+      Slice=user.slice
+      CPUAccounting=yes
+      MemoryAccounting=yes
+      IOAccounting=yes
+      TasksAccounting=yes
+
+  - path: /etc/firewalld/direct.xml
+    content: |
+      <?xml version="1.0" encoding="utf-8"?>
+      <direct>
+        <rule ipv="ipv4" table="filter" chain="OUTPUT" priority="0">-m state --state ESTABLISHED,RELATED -j ACCEPT</rule>
+        <rule ipv="ipv4" table="filter" chain="OUTPUT" priority="1">-p tcp -m tcp --dport 514 -d 192.168.122.50 -j ACCEPT</rule>
+        <rule ipv="ipv4" table="filter" chain="OUTPUT" priority="2">-p udp --dport 53 -d 172.20.10.2/31 -j ACCEPT</rule>
+        <rule ipv="ipv4" table="filter" chain="OUTPUT" priority="3">-p tcp --dport 3129 -d 13.229.252.0/25 -j ACCEPT</rule>
+        <rule ipv="ipv4" table="filter" chain="OUTPUT" priority="4">-p tcp -d 192.168.122.98 -j ACCEPT</rule>
+        <rule ipv="ipv4" table="filter" chain="OUTPUT" priority="99">-j DROP</rule>
+        <rule ipv="ipv4" table="filter" chain="OUTPUT" priority="3">-p tcp --dport 443 -d 13.229.252.0/25 -j ACCEPT</rule>
+        <rule ipv="ipv4" table="filter" chain="OUTPUT" priority="3">-p tcp --dport 9443 -d 13.229.252.0/25 -j ACCEPT</rule>
+      </direct>
+
+  - path: /etc/ssh/sshd_config
+    content: |
+      HostKey /etc/ssh/ssh_host_rsa_key
+      HostKey /etc/ssh/ssh_host_ecdsa_key
+      HostKey /etc/ssh/ssh_host_ed25519_key
+      ListenAddress 192.168.122.98
+      RekeyLimit  default 10m
+
+      SyslogFacility  AUTHPRIV
+      LogLevel        INFO
+
+      LoginGraceTime  60
+      MaxAuthTries    4
+      MaxSessions     4
+      MaxStartups     10:30:60
+      ClientAliveCountMax 3
+
+      StrictModes     yes
+      HostbasedAuthentication no
+      PubkeyAuthentication    yes
+      PasswordAuthentication  no
+      KerberosAuthentication  no
+      GSSAPIAuthentication    no
+      PermitEmptyPasswords    no
+      IgnoreRhosts            yes
+      PermitRootLogin         no
+      AuthorizedKeysCommand /usr/bin/sss_ssh_authorizedkeys
+      AuthorizedKeysCommandUser nobody
+
+      UsePAM          yes
+      AllowTcpForwarding      no
+      X11Forwarding           no
+      PermitUserEnvironment   no
+
+runcmd:
+  - systemd-machine-id-setup
+  - loginctl enable-linger browsers
+  - loginctl enable-linger guacamole
+  - loginctl enable-linger guacd
+  - sh -c 'until grep "browsers" /etc/passwd; do sleep 1; done'
+  - su browsers -c 'ssh-keygen -N "" -t rsa -b 4096 -C "cloud-init" -f /home/browsers/.ssh/id_rsa'
+  - sh -c 'until [ -f /etc/systemd/system/sis-spawn.service ]; do sleep 1; done'
+  - sh -c 'until [ -f /etc/systemd/system/guacamole.service ]; do sleep 1; done'
+  - sh -c 'until [ -f /etc/systemd/system/guacd.service ]; do sleep 1; done'
+  - systemctl daemon-reload
+  - ln -s /etc/systemd/system/sis-spawn.service /etc/systemd/system/multi-user.target.wants/sis-spawn.service
+  - ln -s /etc/systemd/system/guacamole.service /etc/systemd/system/multi-user.target.wants/guacamole.service
+  - ln -s /etc/systemd/system/guacd.service /etc/systemd/system/multi-user.target.wants/guacd.service
+  - reboot

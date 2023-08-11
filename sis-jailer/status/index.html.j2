@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>SIS Status</title>
+    <style>
+    body {
+        font: 1em Helvetica, Arial, Verdana, sans-serif;
+    }
+    a {
+        color: #0366d6;
+    }
+    div#content {
+        width: 70%;
+        margin: auto;
+    }
+    </style>
+    <script type="text/javascript">
+      window.onload = function() {
+        var a = document.getElementById("start_session");
+        a.onclick = function() {
+          window.location.href = "/login?width=" + window.innerWidth + "&height=" + window.innerHeight;
+          return false;
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="content">
+      <h1>Secure Internet Surfing Pilot status</h1>
+      <p>Current status{{ environment }}: <b>{{ status }}</b></p>
+      <p><a id="start_session" href="{{ sis_url }}">Start session</a></p>
+
+      <h2>Disclaimer</h2>
+
+      <p>This is an <b>experimental system</b> for UNCLASSIFIED data only.</p>
+
+      <ul>
+        <li>Your browsing activity may be monitored by Menlo, an external company.</li>
+        <li>Your browsing activity may be monitored by DIGITAL-ITG-DTS and DIGITAL-CSOG-CSO for quality and security purposes.</li>
+      </ul>
+
+      <p>Monitoring may include your keystrokes, browser viewport images, and other data stored in the browser memory.</p>
+
+      <h2>Notes</h2>
+
+      <p>What should work:</p>
+      <ul>
+        <li>Web surfing to most sites, for text browsing. Some videos may work (e.g. many YouTube videos), but not others.</li>
+      </ul>
+      <p>Please consider reporting an issue if a particular site you wish to visit does not work. Specify the site name and the type of content you were trying to access in your report. Contact details are available below.</p>
+
+      <p>What will not work:</p>
+      <ul>
+        <li>Access to DSO intranet sites (i.e. anything behind Netscaler). This is a security decision to avoid leaking DSO credentials to Menlo.</li>
+        <li>Sound. This may be revisited at a later date.</li>
+        <li>Downloads. This may be revisited at a later date.</li>
+      </ul>
+      <p>These are deliberate design decisions.</p>
+
+      <p>Known issues:</p>
+      <ul>
+        <li>Access to certain YouTube videos -- such as the DSO promotional videos</li>
+      </ul>
+      <p>These are on the to-do list, but may not be prioritised for some time yet.</p>
+
+      <h2>Changelog</h2>
+
+      <h3>v0.2.4 (2023-06-07)</h3>
+      <ul>
+        <li>Add browser resolution detection. For optimal usage, resize your window before clicking "Start session".</li>
+      </ul>
+
+      <h3>v0.2.3 (2023-03-31)</h3>
+      <ul>
+        <li>Add many fonts (in particular built-in Latin and CJK fonts).</li>
+      </ul>
+
+      <h3>v0.2.2 (2023-03-16)</h3>
+      <ul>
+        <li>Resolve some certificate validation issues with Menlo.</li>
+        <li>Performance: disable some animations to improve performance.</li>
+      </ul>
+
+      <h3>v0.2.1 (2023-03-13)</h3>
+      <ul>
+        <li>Limit user session startups to 2 sessions per 5 minutes. This is a rolling window.</li>
+      </ul>
+
+      <h3>v0.2.0 (2023-03-13)</h3>
+      <ul>
+        <li>SIS is now blocking sites, instead of explicitly allowing them after approval.</li>
+      </ul>
+
+      <h3>v0.1.3 (2023-01-09)</h3>
+      <ul>
+        <li>Changed default container resolution to 1366x654 to fit default Firefox viewport size.</li>
+        <li>Move approved sites list to newtab page</li>
+      </ul>
+
+      <h3>v0.1.2 (2023-01-03)</h3>
+      <ul>
+        <li>Added list of approved sites.</li>
+      </ul>
+
+      <h3>v0.1.1: Initial release</h3>
+      <ul>
+        <li>Initial availability of pilot.</li>
+      </ul>
+
+      <h2>Contact</h2>
+      <ul>
+        <li>Service issues: {{ dts_contact }}</li>
+        <li>Security issues: {{ csog_contact }}, or {{ dts_contact }}</li>
+      </ul>
+    </div>
+  </body>
+</html>

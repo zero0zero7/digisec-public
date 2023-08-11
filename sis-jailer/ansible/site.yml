@@ -1,0 +1,52 @@
+- name: Set up SIS1 for testing
+  hosts:
+    - sis1
+  become: true
+  tasks:
+    - name: Create directory to save ssh pubkeys
+      connection: local
+      become: false
+      ansible.builtin.file:
+        path: "{{ ssh_key_dir | mandatory }}"
+        state: directory
+
+    - name: Ensure rbash exists
+      ansible.builtin.file:
+        path: /usr/bin/rbash
+        state: link
+        src: /usr/bin/bash
+        owner: root
+        group: root
+
+    - name: Set up PT user
+      ansible.builtin.include_tasks: tasks/create-pt-user.yml
+      with_dict:
+        sweishen-pt: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCfhtl/MiE9PvXOMfw2bkLWY0/sGnUu6xWq8k7GJNUq3qRKFkPGrNtDg+e/ElM6SfXCY7q4PFzL1K+WxqwvPpkhHSUlYhVEbs1BQg226puWPfBmZPCz2sk34Ijy+JH7FgQnKfFwNF2kMuzwgkCEcq+kxDOaHcAvvOBQ4JYvWr+yhoCBOosD8QAcQ5HZ3jERHDb9s7zlZJqSVYIpwuw7BPV6tPrVaaIkSuNq16Lekz60dq+ATuS6AGi5/k1Xsu4/uV0vhHLL/jpUsmR4XwuSO0uKLQ3LppmPmD1dBWUkYMLQewi10y+nOJ4jv5++MAstspHQNNialiNF+M4vn2E9yy6Qr3aIabF+6+q+JoIF1PxZooVQxG3cYah8DG6A5gauyO0G142Ug6rmhIciHI6Qlc0Z0wqKCoGXpDG+GlJMnAOxqeoI4EApgojVIRkGgFM+AcdS6THHyGT5Gj+GUge90ETo7G/UTDMq2OfJxWBA3vRbLyt1GYXolZA6Mq2h1hDjOJbOfJJT5Ncw1ssr1ozSuRsWemQznStmT2lya2Gq/grJEScLB7g2MaWuIUU6//vcbGKyF8EJMZC7MqxlAEF07Z2tfCYQ4rHchZXR8MtdBkFVoZdr72ihkVEUr9kaRIbOMoLHv2uL4MI5rksoO2q9LSJ0lPvux3xEEQkTclDkJIryQQ== sweishen@ec-d22009959.rt.dts.dso
+
+- name: Set up SIS2 for PT users
+  hosts: sis2
+  become: true
+  tasks:
+    - name: Create directory to save ssh pubkeys
+      connection: local
+      become: false
+      ansible.builtin.file:
+        path: "{{ ssh_key_dir | mandatory }}"
+        state: directory
+
+    - name: Ensure rbash exists
+      ansible.builtin.file:
+        path: /usr/bin/rbash
+        state: link
+        src: /usr/bin/bash
+        owner: root
+        group: root
+
+    - name: Set up PT user
+      ansible.builtin.include_tasks: tasks/create-pt-user.yml
+      with_dict:
+        sweishen-test: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDBsFLyjBxZpwONF71GGbDAJ7Ig/+s8SXvaQvgwaCCDXR/pTQdD5RaSnngPhGfibJ3kwXZvy34fWWoMNt+elqIX7zS+NvcJD74B/jCPGyUpsuPRU+f6iFsP36lZh5HDxbeasUGDxlHQ0BASW9kVVC498NI8YMoDxjZb5X1DWY7quzWOxhuDu4bnLs5HbEgxJZ+rjVGwlPo/wcAR0SRaos0l6E/MKTJ1IgejI/JBU3LHLUMdVcOLaYJe9HCfI1yRW9GLR3EDZIqDiF15BlkIRLhWNPjrOTiJZkPIr5rZh+Y+zFMC+sLdZtjdIBxtOk6EPqFhj1T4IOd8puPQNV8uKOInQwB4RFiY+Bf10bjbendYLldCRdc/eBre45B/AjLbWGtYJg+QQxh8Pesu2dyFvkaVEoSz5mgOuzCrSz5mrP7UoEOaaU9Z2MHbe6d4TRYE+JYrXnQnyld1ZzVf20PQ8jdgfHu/MfJtQLk9WyHCKl7uJxu1miGp5dnOvX5+mAAjVFqGkpxjYt+8IJNNO+cjHf0gGcLA7HkhY4YjqHQnp7M9DXZmAgie+Vlil22a+AeBMdC1pXmzEiI9KXTCrT+VSmpbiHxkUdLsq2j1UQoYhWRxBVZHfVHu1hYNgrr9ji6EzyT0u8aYqBfxDKADhA/ODlF+vSogYvQeSbeb6OiFist8hw== dsnet\sweishen@D20006862
+        cweiling: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQCrOwftgqZBOnsIlIa96bnVT2KuZj5zWjitj8/kV2aTutZHw8yySPj60HkC0pY65Us1iG01Cmi7sh29miC2ALiSTuWfx5N7L1bpIkU6spyGnPlQrK9s3K4a08AzH7e5TV5sO9TESKjLO/IqbnOANvqmBiJMRMvUt+MqxY3mEn+45L3CU/mKx2ABF3BNp+4wDtiON2zBGeKeRzr/DxykVNMzj6HO02SYHpK9g8SFJriaAPyxxl/BLtRcd/aHduhusKC+gw3KQI/VR+AHt9pzbstUViPrWenmSWaCogA0a8h8FKW0K6VVYjr8QyJvsB8HYTzt1v0NqFjGKOIfVbX23VU4sv438v5q/mPebwSmr+I0y2DQ4YeLUroxYrL32JaqGrXkmqi938pbPsuNKNnWd8KcA3RHuiyT0/QtjcpEuZOFoa6Fu3tadIfDffgDC22Dl0Ka61alYAVGAQsaKfswquQymQhGPv1w5BJfplDsim97f4E+ROx7JXR+etpm133VCgi0PVEEzsXK/y2bOjk+yJsJlo0qnZEAyzD3KYG8qnWJ/+rOuE0E18qgUUnLFH0v4eAkGVy9N5UQVRtNBf83Ndv6j3wzwbc+girsB3GSae3/CrSkpwVz5nxz8qF0Tf1eZhSuy1wUnRNpSRT/zsegvZ2/znjQvGxbkcin0M2N7cb+/w== dsnet\cweiling@D21014179
+        cjonatha: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDg1O/0WH/l4fA42Ylh3ZSYay7P+sveYckxXNCyAi9x+pMheUwHLuz9CqHsbRUsJIkmw3cDsfGKldgR3PRFWsZY4dhTlhrmzRRk4w5k6q7k4Hs/z0o4YWSGQUr/INJBoaRhzCF980YGLsACVRxHPoOlDX+DBb/811iHNyjadHSeJWlCn742wladpqemtGoeDmDMx53CbLkD7O+CyzVD9pROtJgo/f2N55nN8CZFjX4OTS9gDg81lCmGJv/I3Ht5S9FaZLgiRn5/Z0kzSsfbUsiuXH9U7YcTESUe3GNe36mVRU6+/ME3djF6SLrezSQ3IrLuVaOHBRUAdpJwEYxP7rxizDrOjczxSP6drnbpDTPqX4/xYi9tEXbmTmBSWUGvyDLdmd8pvuwc8H6S4yKtci5Ler0xJwMV+HnxtiebvqmhiVc/+bKkPZhzPq7rwn9f6JAOe7fz9WXp6HFmCrNPBAn0G2dekG9dnWwAuomiOOQfp1nhrRAGj9zj8xE4znioYqlCsVUGZUzDx89MsOQ4LXbUW7IMLuS8bQau1Smrt0cb80alh1Yzo2sGudryT4ZWeRoFUdyFuQxLSzbBCBJHufmNFri+/ls+JjKgZoHQ1ez6+992aEFFAYh/8PTK3xE+kk2R/Txz/20E5VFGzql6b8iEHLYEWuJLHVVdYf25oN7POQ== dsnet\cjonatha@D21014137
+        gsuhwee: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDTU0BlYxRn7u40h8PNtYTeBWUIHkGggevKguQkI9YtmJ2gGcyOUL2wa79lthlM3BPJXelUpSiDenuUR/cbfzyIxzpxl/buQglvI2wcD9i1oJbGZM8K2I1oT8DfUHBeFEudCJfp2Ib1NM6FKwlLYfVymjb2drsLKz0AIMhwnDTYZdUjXzDoia+gDA9cR384toEFWEgETi6lBdBVkMkZ4LCq6UsHXm7XDqCsrlFKF0+yCTj4U/27aVj7fT8AWooT2Bevh828szxv/I1w/u39ZLWtIvAz68fj7jzaTr/XCoBtJVy32CLroItwrcO6nGG616B/gkGDZ+GgjsRObTTou55VoP9jK2snzKaF76QwvLeY/icae/MhcYFos6rt6823PHu1wMdikksCB7B0A6tcIWdVAkVQlD3dKuByuOt6qGfRs7MbMWEpP1ROGzkSLN7laN02eg+NZ6IgDVDbLrumu8KrVO5MNZEqg/NmJxhda19B4jkNUzNo+nTIC0z9ivcIPusvtqDKNREHh8nQF0/Qe8y39s3zG7w1dVRp78N6cBYQ7JN6kJ3WGJC1kZtRVuQZGsEuLBMYl52XxsCSY2cw58vOJYti91i44Lf2UeT0YMIuWyFMPLosgxWaso3Pfks7XTDbWjLidIgon7FWwW8TSPvAt/OgPIvgVti65DrFdBohYw== gsuhwee@dsnhost
+        tqiren: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDJlfHfPAawVmFIKlKCUlp7gn7Z+t8cfo2reCAHPkX4caTuP9OB1ZOcnQpvinQ7TEipFHC/TgOiSDRkI1v8glt61BgVuQMIaHtDTOEAU5H1Nzj2LIpreLAvIqu5vRtaoimWcOD5E1Wza74hwEjKH7ZJ8gbUspXFSOSGXgMJHv3VH7QPMTGXl+uSy1qLD19PR5WR4kJ70yWx5gWEojc0zHEyEw7vBZBYRFTDyBEiz1aL4kDS9H2hH1IMiLNlw0xDHJEthIFsTbdtJI4H/M8fetpVb09fzeo8gHhpJDd6ESpUiS/bauNExlEu41K+YR2JqPjQQc2VFKlrtKJzkmGHOS4Y5rOIkI4SySbPaYErm4JpI7imu/DGqcXYvjfuNYSkupvUshgQMjdevMLka9/fhQ/RPSsHhLTal01BDWjxy48jgRtIRUPOqPkLvvXG43i5FfKUDaffOqaNXEXNVRVMhzI/0uhD/lfdaiXdq7n5U2ZHhaDnziU/ZlEckAyuFRwIXzM33R4GxMU3kMpFG7DaT9oJ8aKVAASQf+2Gh9IwW/lnYy0oPbV94In3GHtPwCWnyxQ3d+YGrNjIsjatfXMuBVFBkaw3gP0mEJdqez0t9Z7Ka2JcuabN6dF+DwEuWgUJIgi8FsPbP6vfGjQVK3xsnKxy3+xnOBquGlLBSsZS11R7IQ== dsnet\tqiren@D21014172

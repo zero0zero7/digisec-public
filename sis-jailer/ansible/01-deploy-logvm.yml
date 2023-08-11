@@ -1,0 +1,22 @@
+- hosts: sis2
+  become: true
+  tasks:
+    - name: Copy logvm
+      ansible.builtin.copy:
+        src: /home/sweishen/work/sis/packer/logvm/img/sisvm.qcow2
+        dest: /var/lib/libvirt/images/logvm.qcow2
+        owner: qemu
+        group: qemu
+        mode: 0640
+    - name: Copy logvm cidata
+      ansible.builtin.copy:
+        src: /home/sweishen/work/sis/packer/logvm/out/cidata.iso
+        dest: /var/lib/libvirt/images/logvm-cidata.iso
+        owner: qemu
+        group: qemu
+        mode: 0640
+    - name: Create logvm snapshot
+      ansible.builtin.command: /usr/bin/qemu-img create -f qcow2 -F qcow2 -b /var/lib/libvirt/images/logvm.qcow2 /var/lib/libvirt/images/logvm-current.qcow2
+    - name: Install machine
+      ansible.builtin.command:
+        cmd: virt-install --name=logvm --ram=8192 --vcpus=4 --disk path=/var/lib/libvirt/images/logvm-current.qcow2,format=qcow2 --disk path=/var/lib/libvirt/images/logvm-cidata.iso,device=cdrom --os-variant=rhel8-unknown --network network=sis,model=virtio --noautoconsole --import

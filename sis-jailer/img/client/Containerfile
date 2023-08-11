@@ -1,0 +1,43 @@
+FROM debian:stable
+
+ENV VNCPASSWD=""
+ENV VIEWPORT_WIDTH 1366
+ENV VIEWPORT_HEIGHT 654
+
+EXPOSE 5920
+
+RUN apt update && apt install -y ca-certificates
+RUN sed -i 's/http/https/g' /etc/apt/sources.list
+
+RUN apt update && apt install -y \
+	curl \
+	tigervnc-standalone-server \
+	x11vnc xvfb \
+	bash \
+	libglib2.0-0 libnss3 xdg-utils libgtk-3-0 libasound2 fonts-liberation libatk1.0-0 libatspi2.0-0 libcairo2 libcups2 libgbm1 libpango-1.0-0 libxkbcommon0 wget \
+	fonts-dejavu-core fonts-indic fonts-noto-cjk fonts-noto-color-emoji \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN useradd -m user
+
+RUN mkdir -p /home/user/.pki
+COPY nssdb /home/user/.pki/nssdb
+RUN chown -R user:user /home/user
+
+RUN mkdir -p /etc/chromium/policies/managed
+COPY test_policy.json /etc/chromium/policies/managed/test_policy.json
+RUN chmod 644 /etc/chromium/policies/managed/test_policy.json
+
+RUN mkdir /usr/share/sis
+RUN chmod 755 /usr/share/sis
+COPY newtab.html /usr/share/sis/newtab.html
+RUN chmod 644 /usr/share/sis/newtab.html
+
+ADD chromium.tar /opt/
+RUN ln -s /opt/chromium/chrome-wrapper /usr/bin/chromium
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod 755 /entrypoint.sh
+
+USER user
+CMD /entrypoint.sh

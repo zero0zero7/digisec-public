@@ -1,0 +1,23 @@
+FROM localhost/sisclient
+
+USER root
+RUN apt update && apt install -y openssh-server \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY issue /etc/issue
+RUN chmod 644 /etc/issue
+
+RUN mkdir -p /tmp/ussh/etc/ssh
+RUN chown -R user:user /tmp/ussh
+COPY sshd_config /tmp/ussh/etc/ssh/sshd_config
+RUN chmod 644 /tmp/ussh/etc/ssh/sshd_config
+
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod 755 /entrypoint.sh
+
+COPY notsh /usr/bin/notsh
+RUN chmod 755 /usr/bin/notsh
+RUN sed -i -r 's/^(user.*):[^:]+$/\1:\/usr\/bin\/notsh/' /etc/passwd
+
+USER user
+CMD /entrypoint.sh

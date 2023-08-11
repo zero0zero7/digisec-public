@@ -1,0 +1,28 @@
+Port 2222
+HostKey /tmp/ussh/etc/ssh/ssh_host_rsa_key
+HostKey /tmp/ussh/etc/ssh/ssh_host_ecdsa_key
+HostKey /tmp/ussh/etc/ssh/ssh_host_ed25519_key
+UsePAM no
+
+LoginGraceTime  60
+MaxAuthTries    4
+MaxSessions     4
+MaxStartups     10:30:60
+ClientAliveCountMax 3
+
+StrictModes     yes
+HostbasedAuthentication no
+PubkeyAuthentication    yes
+PasswordAuthentication  no
+KerberosAuthentication  no
+GSSAPIAuthentication    no
+PermitEmptyPasswords    no
+IgnoreRhosts            yes
+PermitRootLogin         no
+
+AcceptEnv LANG LC_*
+AllowTcpForwarding      no
+X11Forwarding           no
+PermitUserEnvironment   no
+Banner                  /etc/issue
+PrintLastLog            yes

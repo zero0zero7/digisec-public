@@ -1,0 +1,19 @@
+- hosts: sis2
+  become: true
+  tasks:
+    - name: Stop sisvm
+      community.libvirt.virt:
+        name: sisvm
+        state: destroyed
+    - name: Undefine sisvm
+      community.libvirt.virt:
+        name: sisvm
+        command: undefine
+    - name: Remove images
+      ansible.builtin.file:
+        path: "{{ item }}"
+        state: absent
+      loop:
+        - /var/lib/libvirt/images/sisvm.qcow2
+        - /var/lib/libvirt/images/sisvm-current.qcow2
+        - /var/lib/libvirt/images/sisvm-cidata.qcow2

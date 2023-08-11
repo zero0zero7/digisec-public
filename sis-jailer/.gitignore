@@ -1,0 +1,9 @@
+# Ignore firecracker/build/ directory
+firecracker/build/
+
+# Ignore firecracker/sockets directory
+firecracker/sockets
+
+# Ignore snapshot and memory files
+firecracker/mems
+firecracker/snapshots

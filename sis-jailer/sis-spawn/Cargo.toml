@@ -1,0 +1,24 @@
+[package]
+name = "sis-spawn"
+version = "0.2.4"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+aes = "0.8"
+axum = { version = "0.6", default-features = false, features = ["http1", "query", "tokio"] }
+base64 = "0.13"
+cbc = "0.1"
+cipher = { version = "0.4", features = ["std"] }
+env_logger = "0.9"
+hex = "0.4"
+hmac = "0.12"
+lazy_static = "1.4"
+once_cell = "1"
+rand = "0.8"
+serde = { version = "1.0", features = ["derive"] }
+sha2 = "0.10"
+tokio = { version = "1.23", features = ["rt-multi-thread", "macros", "process", "fs"] }
+tracing = "0.1"
+urlencoding = "2"

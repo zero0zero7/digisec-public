@@ -1,0 +1,1 @@
+sudo virt-install --name=vm1 --ram=8192 --vcpus=4 --import --disk path=/var/lib/libvirt/images/vm1.qcow2,format=qcow2 --disk path=/var/lib/libvirt/images/cidata.iso,device=cdrom --os-variant=rhel8-unknown --network network=default,model=virtio --noautoconsole

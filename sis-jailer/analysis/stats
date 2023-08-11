@@ -1,0 +1,152 @@
+#!/usr/bin/env python3.9
+"""sis-stats: get basic statistics from SIS connection logs"""
+
+"""
+Assumptions:
+
+    - All dates are within the same month
+    - Logs are passed in chronological order
+"""
+import argparse
+import collections
+import datetime
+import re
+import sys
+from operator import attrgetter
+
+
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument(
+    "-m",
+    required=True,
+    type=str,
+    dest="month",
+    help="month in YYYY-MM format",
+)
+parser.add_argument(
+    "--session-csv",
+    action="store_true",
+    help="whether to print output in CSV",
+)
+
+class Session:
+    def __init__(self, ctr_id, src, datetime):
+        self.id = ctr_id
+        self.src = src
+        self.start = datetime
+        # end: when a disconnect was received from the client
+        self.end = None
+        # last: when the audit logs indicate the container was cleaned up
+        self.last = None
+
+    @property
+    def connected_time(self):
+        """
+        The length of the client session.
+
+        This is the length of time the client was connected to the VNC server.
+        It may be missing if the server ends the session (e.g. the browser was closed).
+        """
+        if self.end:
+            return self.end - self.start
+        else:
+            return None
+
+    @property
+    def ctr_lifetime(self):
+        """
+        The total lifetime of the container.
+
+        This may be missing if the VAS VM was terminated while there were still live sessions.
+        """
+        if self.last:
+            return self.last - self.start
+        else:
+            return None
+
+    @property
+    def length(self):
+        """
+        The best guess of session length.
+
+        This will be `connected_time` if present, otherwise it will be `ctr_lifetime`.
+
+        This calculation may not be very accurate, because some users will simply close the browser,
+        or sleep their machines, resulting in an unclean disconnect.
+        In this case, the actual connected time will be the cleanup time less the connection timeout
+        (currently 2 minutes).
+        """
+        return self.connected_time or self.ctr_lifetime
+
+
+L_SPAWN = re.compile(
+    r".* (?P<day>\d{1,2}) (?P<hour>\d{2}):(?P<min>\d{2}):(?P<sec>\d{2}) sis[\d]-vas sis-spawn\[\d+\]:.*spawned ctr (?P<id>[\w\d]{32})[\w\d]{32} on .* for (?P<source>.*)\n"
+)
+L_CLEAN = re.compile(
+    r".* (?P<day>\d{1,2}) (?P<hour>\d{2}):(?P<min>\d{2}):(?P<sec>\d{2}) sis[\d]-vas ([\w\d]{32})\s+VNCSConnST:  closing .*: Clean disconnection\n"
+)
+L_AUDIT = re.compile(
+    r".* (?P<day>\d{1,2}) (?P<hour>\d{2}):(?P<min>\d{2}):(?P<sec>\d{2}) sis[\d]-vas .*/transient/libpod-([\w\d]{32})[\w\d]{32}.scope\" .* nametype=DELETE.*\n"
+)
+RE_MONTH = re.compile(r"^(\d{4})-(\d{2})$")
+
+
+if __name__ == "__main__":
+    sessions = {}
+    args = parser.parse_args()
+
+    if month_pat := re.fullmatch(RE_MONTH, args.month):
+        year = int(month_pat.group(1))
+        month = int(month_pat.group(2))
+    else:
+        print("Failed to parse month", file=sys.stderr)
+        sys.exit(1)
+
+    for line in sys.stdin:
+        if match := re.fullmatch(L_SPAWN, line):
+            sessions[match.group(5)] = Session(
+                match.group("id"),
+                match.group("source"),
+                datetime.datetime(
+                    year=year,
+                    month=month,
+                    day=int(match.group("day")),
+                    hour=int(match.group("hour")),
+                    minute=int(match.group("min")),
+                    second=int(match.group("sec")),
+                ),
+            )
+        elif match := re.fullmatch(L_CLEAN, line):
+            sessions[match.group(5)].end = datetime.datetime(
+                year=year,
+                month=month,
+                day=int(match.group("day")),
+                hour=int(match.group("hour")),
+                minute=int(match.group("min")),
+                second=int(match.group("sec")),
+            )
+        elif match := re.fullmatch(L_AUDIT, line):
+            if match.group(5) in sessions:
+                sessions[match.group(5)].last = datetime.datetime(
+                    year=year,
+                    month=month,
+                    day=int(match.group("day")),
+                    hour=int(match.group("hour")),
+                    minute=int(match.group("min")),
+                    second=int(match.group("sec")),
+                )
+            else:
+                print(
+                    f"Error: missing record { match.group(5) } in sessions",
+                    file=sys.stderr,
+                )
+
+    by_duration = sorted(sessions.values(), key=attrgetter("start"))
+
+    if args.session_csv:
+        for session in by_duration:
+            print(
+                "%s,%s,%s,%s"
+                % (session.id, repr(session.src), session.start, session.length)
+            )
+

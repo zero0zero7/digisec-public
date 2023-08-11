@@ -1,0 +1,23 @@
+- hosts: localhost
+  tasks:
+    - name: Generate status page
+      ansible.builtin.make:
+        chdir: "{{ playbook_dir }}/../status"
+        target: "index.html"
+        params:
+          SIS_ENV: "{{ sis_env | mandatory }}"
+          OP_STATUS: "{{ op_status | mandatory }}"
+          SIS_URL: "{{ sis_url | mandatory }}"
+          DTS_CONTACT: "{{ dts_contact | mandatory }}"
+          CSOG_CONTACT: "{{ csog_contact | mandatory }}"
+
+- hosts: sis2
+  become: true
+  tasks:
+    - name: Copy status page
+      ansible.builtin.copy:
+        src: "{{ playbook_dir }}/../status/index.html"
+        dest: /usr/share/nginx/html/index.html
+        owner: root
+        group: root
+        mode: 0644

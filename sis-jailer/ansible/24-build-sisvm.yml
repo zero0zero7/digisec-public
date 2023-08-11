@@ -1,0 +1,2 @@
+- import_playbook: 24a-packer-sisvm.yml
+- import_playbook: 24b-cloud-init.yml

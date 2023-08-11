@@ -1,0 +1,92 @@
+- name: Get guacamole images
+  hosts: sis1
+  tasks:
+    - name: Build guacamole with authentication plugin
+      ansible.builtin.command:
+        cmd: podman build -t local-guacamole .
+        chdir: "{{ sis_src | mandatory }}/img/guacamole"
+      changed_when: true
+
+    - name: Pull guacd image
+      ansible.builtin.command:
+        cmd: podman pull docker.io/guacamole/guacd:latest
+      changed_when: true
+
+    - name: Generate tempdir to export images
+      ansible.builtin.tempfile:
+        state: directory
+      register: tmpdir
+
+    - name: Export guacamole
+      ansible.builtin.command:
+        argv:
+          - podman
+          - save
+          - "-o={{ tmpdir.path }}/guacamole.tar"
+          - localhost/local-guacamole
+      changed_when: true
+
+    - name: Export guacd
+      ansible.builtin.command:
+        argv:
+          - podman
+          - save
+          - "-o={{ tmpdir.path }}/guacd.tar"
+          - docker.io/guacamole/guacd:latest
+      changed_when: true
+
+    - name: Create tempfile on localhost to hold image
+      ansible.builtin.tempfile:
+        state: directory
+      register: local_tmp
+      connection: local
+
+    - name: Save guacamole to localhost
+      ansible.builtin.fetch:
+        src: "{{ tmpdir.path }}/guacamole.tar"
+        dest: "{{ local_tmp.path }}/"
+        flat: true
+
+    - name: Save guacd to localhost
+      ansible.builtin.fetch:
+        src: "{{ tmpdir.path }}/guacd.tar"
+        dest: "{{ local_tmp.path }}/"
+        flat: true
+
+    - name: Remove tempfile on sis1
+      ansible.builtin.file:
+        path: "{{ tmpdir.path }}"
+        state: absent
+
+- name: Push sisclient to mirror
+  become: true
+  hosts: sis1
+  tasks:
+    - name: Ensure directory exists
+      ansible.builtin.file:
+        path: /var/lib/mirror/sis
+        state: directory
+        mode: '0755'
+        owner: root
+        group: root
+
+    - name: Copy guacamole
+      ansible.builtin.copy:
+        src: "{{ hostvars['sis1']['local_tmp']['path'] }}/guacamole.tar"
+        dest: /var/lib/mirror/sis/guacamole.tar
+        mode: '0644'
+        owner: root
+        group: root
+
+    - name: Copy guacd
+      ansible.builtin.copy:
+        src: "{{ hostvars['sis1']['local_tmp']['path'] }}/guacd.tar"
+        dest: /var/lib/mirror/sis/guacd.tar
+        mode: '0644'
+        owner: root
+        group: root
+
+    - name: Remove file on localhost
+      ansible.builtin.file:
+        path: "{{ hostvars['sis1']['local_tmp']['path'] }}"
+        state: absent

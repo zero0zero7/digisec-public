@@ -1,0 +1,17 @@
+- hosts: sis2
+  become: true
+  tasks:
+    - name: Copy sisvm
+      ansible.builtin.copy:
+        src: "{{ sis_src | mandatory }}/packer/sisvm/img/sisvm.qcow2"
+        dest: /var/lib/libvirt/images/sisvm-next.qcow2
+        owner: qemu
+        group: qemu
+        mode: 0640
+    - name: Copy sisvm cidata
+      ansible.builtin.copy:
+        src: "{{ sis_src }}/packer/sisvm/out/cidata.iso"
+        dest: /var/lib/libvirt/images/sisvm-cidata.iso
+        owner: qemu
+        group: qemu
+        mode: 0640

@@ -1,0 +1,19 @@
+FROM docker.io/guacamole/guacamole:1.4.0
+
+ENV GUAC_JSON_KEY ""
+ARG GUAC_VERSION="1.4.0"
+ARG GUACAMOLE_HOME="/opt/guacamole-home"
+EXPOSE 8080
+
+USER root
+RUN mkdir -p ${GUACAMOLE_HOME}/extensions
+RUN ln -s /opt/guacamole/json/guacamole-auth-json-${GUAC_VERSION}.jar ${GUACAMOLE_HOME}/extensions/guacamole-auth-json-${GUAC_VERSION}.jar
+# RUN cp /opt/guacamole/json/guacamole-auth-json-${GUAC_VERSION}.jar ${GUACAMOLE_HOME}/guacamole-auth-json-${GUAC_VERSION}.jar
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod 755 /entrypoint.sh
+COPY guacamole.properties ${GUACAMOLE_HOME}/guacamole.properties
+RUN chown guacamole:guacamole ${GUACAMOLE_HOME}/guacamole.properties
+
+ENV GUACAMOLE_HOME=${GUACAMOLE_HOME}
+USER guacamole
+CMD /entrypoint.sh

@@ -1,0 +1,12 @@
+build-browser-builder:
+  stage: build
+  # rules:
+  #   - changes:
+  #       paths:
+  #         - img/browser-builder
+  image: quay.io/buildah/stable
+  script:
+    - cd img/browser-builder
+    - buildah login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - buildah bud -t browser-builder .
+    - buildah push browser-builder

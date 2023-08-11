@@ -1,0 +1,18 @@
+#!/sbin/openrc-run
+
+
+command="sh /bin/launch-cont.sh"
+command_args=""
+
+pidfile="/home/user1/run/${RC_SVCNAME}.pid" 
+command_user="user1"
+# command_background=true
+name="Podman Container" 
+description="Lauching"
+
+ 
+depend() {
+#  (Dependency information)
+    after local
+    # after agetty.ttyS0
+}

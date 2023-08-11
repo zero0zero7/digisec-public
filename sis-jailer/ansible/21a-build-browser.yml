@@ -1,0 +1,31 @@
+- name: Build sisclient
+  hosts: sis1
+  tasks:
+    - name: Build browser-builder
+      ansible.builtin.make:
+        chdir: "{{ sis_src | mandatory }}/img/browser-builder"
+        target: browser-builder
+      changed_when: true
+
+    - name: Check chromium sources
+      # If it is present, assume that it's been fetched correctly.
+      ansible.builtin.stat:
+        path: "{{ crbuild_dir | mandatory }}/src"
+      register: crbuild_d
+
+    - name: Fetch chromium if necessary
+      ansible.builtin.command:
+        argv:
+          - fetch-chromium-src
+          - "{{ crbuild_dir }}"
+        chdir: "{{ sis_src }}/img/browser-builder"
+      when: not crbuild_d.stat.exists
+
+    - name: Build chromium
+      ansible.builtin.command:
+        argv:
+          - "{{ sis_src }}/img/browser-builder/run-builder"
+          - "{{ crbuild_dir }}"
+          - "{{ chromium_version | mandatory }}"
+        chdir: "{{ sis_src }}/img/browser-builder"
+      changed_when: true

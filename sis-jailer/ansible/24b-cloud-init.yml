@@ -1,0 +1,15 @@
+- name: Generate cloud-init config
+  hosts: sis1
+  tasks:
+    - name: Clean cloud-init ISO (to account for different env vars)
+      ansible.builtin.file:
+        path: "{{ sis_src }}/packer/sisvm/out"
+        state: absent
+
+    - name: Generate cloud-init ISO
+      ansible.builtin.make:
+        chdir: "{{ sis_src }}/packer/sisvm"
+        target: out/cidata.iso
+        params:
+          GUAC_HOST: "{{ guac_host }}"
+          VAS_HOSTNAME: "{{ vas_hostname }}"

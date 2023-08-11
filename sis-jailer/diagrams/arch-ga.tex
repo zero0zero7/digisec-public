@@ -1,0 +1,233 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{helvet}
+
+\usepackage{epstopdf}
+\usepackage{tikz}
+\usetikzlibrary{calc, chains, positioning, shadings, shadows, shapes.arrows}
+
+\usepackage{ctable}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% Styles for interfaces and edge labels
+\tikzset{%
+  interface/.style={draw, rectangle, rounded corners, font=\LARGE\sffamily},
+  ethernet/.style={interface, fill=yellow!50},% ethernet interface
+  serial/.style={interface, fill=green!70},% serial interface
+  speed/.style={sloped, anchor=south, font=\large\sffamily},% line speed at edge
+  route/.style={draw, shape=single arrow, single arrow head extend=4mm,
+    minimum height=1.7cm, minimum width=3mm, white, fill=blue!20,
+    drop shadow={opacity=.8, fill=blue!50!black}, font=\tiny}% inroute / outroute arrows
+}
+\newcommand*{\shift}{1.3cm}% For placing the arrows later
+
+
+\begin{document}
+
+\title{Proposed details for SIS deployment}
+\maketitle{}
+
+\section{SIS on DSNET}
+
+\subsection{Network logical architecture}
+
+\begin{figure}[h]
+\centering
+\scalebox{0.8}{
+\begin{tikzpicture}[node distance=4cm]
+    \node (DSN) [
+        label=left:DSNET clients
+    ] {\includegraphics{3015_eps/terminal}};
+
+    \node (DSNFW) [
+        right of=DSN
+    ] {\includegraphics{3015_eps/firewall}};
+
+    \node [
+        align=center,
+        anchor=north
+    ] at (DSNFW.south) {Permit from DSN\\Deny to DSN\\SIS HTTPS only};
+
+    \node (DSN_SW) [
+        right of=DSNFW,
+        label=right:DSNET TOR
+    ] {\includegraphics{3015_eps/workgroup_switch}};
+
+    \node (SIS_GW1) [
+        below of=DSNFW,
+        label=right:SIS-GW-1
+    ] {\includegraphics{3015_eps/standard_host}};
+
+    \node (SIS_GW2) [
+        right of=SIS_GW1,
+        label=right:SIS-GW-2
+    ] {\includegraphics{3015_eps/standard_host}};
+
+    \node (SIS_SW1) [
+        below of=SIS_GW1,
+        yshift=15mm,
+        label=right:SIS-SW-1
+    ] {\includegraphics{3015_eps/workgroup_switch}};
+
+    \node (SIS_SW2) [
+        below of=SIS_GW2,
+        yshift=15mm,
+        label=right:SIS-SW-2
+    ] {\includegraphics{3015_eps/workgroup_switch}};
+
+    \node (SIS_CTR1) [
+        below of=SIS_SW1,
+        yshift=15mm,
+        label=right:SIS-CTR-1
+    ] {\includegraphics{3015_eps/standard_host}};
+
+    \node (SIS_CTRn) [
+        below of=SIS_SW2,
+        yshift=15mm,
+        label=right:SIS-CTR-n
+    ] {\includegraphics{3015_eps/standard_host}};
+
+    \node (SIS_INT1) [
+        below of=SIS_CTR1,
+        yshift=15mm,
+        label=right:TOR
+    ] {\includegraphics{3015_eps/workgroup_switch}};
+
+    \node (SIS_INT2) [
+        below of=SIS_CTRn,
+        yshift=15mm,
+        label=right:TOR
+    ] {\includegraphics{3015_eps/workgroup_switch}};
+
+    \draw [-, thick, black]
+    (DSN) -- (DSNFW) -- (DSN_SW) -- (SIS_GW1)
+    (DSN_SW) -- (SIS_GW2)
+    (SIS_GW1) -- (SIS_SW1) -- (SIS_GW2) -- (SIS_SW2) -- (SIS_GW1)
+    (SIS_SW1) -- (SIS_CTR1) -- (SIS_SW2) -- (SIS_CTRn) -- (SIS_SW1)
+    (SIS_CTR1) -- (SIS_INT1) -- (SIS_CTRn) -- (SIS_INT2) -- (SIS_CTR1);
+
+    \node (SIS_DMZ_a) [coordinate, at=(SIS_GW1), xshift=-1cm, yshift=1cm] {};
+    \node (SIS_DMZ_b) [coordinate, at=(SIS_CTR1), xshift=-1cm, yshift=-1cm] {};
+    \node (SIS_DMZ_c) [coordinate, at=(SIS_CTR1), xshift=8cm, yshift=-1cm] {};
+    \node (SIS_DMZ_d) [coordinate, at=(SIS_GW1), xshift=8cm, yshift=1cm, label=below left:SIS DMZ (RT)] {};
+    \draw [-,thick,gray] (SIS_DMZ_a) -- (SIS_DMZ_b) -- (SIS_DMZ_c) -- (SIS_DMZ_d) -- (SIS_DMZ_a);
+
+    \node (DSN_ADM_FW) [
+        below of=DSN
+    ] {\includegraphics{3015_eps/firewall}};
+
+    \node [
+        align=center,
+        anchor=east
+    ] at (DSN_ADM_FW.west) {Permit SIS administrative\\clients only};
+
+    \node (SIS_MGMT) [
+        below of=DSN_ADM_FW,
+        yshift=15mm,
+        label=left:SIS-Svc-1
+    ] {\includegraphics{3015_eps/standard_host}};
+
+    \draw [-, thick, gray]
+    (DSN) -- (DSN_ADM_FW) -- (SIS_MGMT) -- (SIS_SW1)
+    (SIS_MGMT) edge [bend left=10] (SIS_SW2);
+
+    \node (SIS_INT) [
+        below=of $(SIS_INT1)!0.5!(SIS_INT2)$,
+        yshift=20mm,
+        label=center:Menlo
+    ] {\includegraphics{3015_eps/cloud}};
+
+    \draw [-, thick, black] (SIS_INT1) -- (SIS_INT) -- (SIS_INT2);
+
+\end{tikzpicture}
+}
+\caption{SIS logical architecture on DSNET.}
+\end{figure}
+
+
+\subsection{Host overview}
+
+\subsubsection{SIS-GW-n}
+
+These are the DSNET client facing load balancers, configured in active-passive failover with keepalived.
+
+These machines should have at least 4 NICs, plus out-of-band interfaces, to support:
+
+\begin{itemize}
+    \item Load balancing, failover for DSNET-facing link (2)
+    \item Load balancing, failover for SIS internal link (2)
+    \item Monitoring and administrative traffic (non-OOB) (0--1)
+\end{itemize}
+
+\subsubsection{SIS-SW-n}
+
+For switching internal traffic to support load balancing.
+These switches should support sufficient bandwidth to serve all SIS clients at once on the links to the SIS-GW-n ports.
+Traffic on the other ports should be fairly balanced.
+
+\subsubsection{SIS-CTR-n}
+
+Container hosts for the browser pods.
+
+\subsubsection{SIS-Svc-1}
+
+For monitoring, logging, and deployment.
+This host will also serve as a jumphost to access the other hosts.
+
+
+\subsection{IP assignments}
+
+\begin{table}[h!]
+    \caption{Requested IP assignments}
+    \begin{tabular}{l l l}
+        Host & Assignment & Externally routable? \\
+        \hline
+        SIS external-facing LB & IP1 (to be assigned) & Y \\
+        SIS-GW-1 & IP2 (to be assigned) & Y \\
+        SIS-GW-2 & IP3 (to be assigned) & Y \\
+        SIS-Svc-1 & IP4 (to be assigned) & Y \\
+        All devices (for use within SIS only) & At least a /26 please & N \\
+    \end{tabular}
+\end{table}
+
+
+\subsection{DNS records}
+
+\begin{table}[h!]
+    \caption{Proposed DNS names}
+    \begin{tabular}{l l l}
+        Hostname & Record type & Data \\
+        \hline
+        internet.dsnet.dso.root. & CNAME & gw.sis.dsnet.dso.root \\
+        gw.sis.dsnet.dso.root. & A & \emph{IP1} \\
+        gw1.sis.dsnet.dso.root. & A & \emph{IP2} \\
+        gw2.sis.dsnet.dso.root. & A & \emph{IP3} \\
+        int.sis.dsnet.dso.root. & A & \emph{IP4} \\
+    \end{tabular}
+\end{table}
+
+A zonefile will be included here when the names and data are confirmed.
+
+\subsection{Firewall access}
+
+\ctable[
+    caption=Routes to be permitted,
+    pos=h!
+]{p{50mm} p{95mm}}{}{
+    \FL
+    Source & Dest \ML
+    DSNET end-user clients \newline (any high-numbered port) & IP1-3 \newline (80/tcp, 443/tcp) \ML
+    Designated administrative clients \newline (any high-numbered port) & IP4 \newline (22/tcp) \ML
+    SIS-CTR-n \newline (any high-numbered port) & 13.229.252.0/25 \newline (443/tcp, 3129/tcp, 9443/tcp) \ML
+    SIS-CTR-n \newline (any high-numbered port) & pac.menlosecurity.com \newline (443/tcp) \ML
+    SIS-CTR-n \newline (any high-numbered port) & *proxy0-418f1090cac5bb897d919b628e87950c.menlosecurity.com \newline (443/tcp, 3129/tcp, 9443/tcp) \ML
+    SIS-CTR-n \newline (any high-numbered port) & *proxy1-418f1090cac5bb897d919b628e87950c.menlosecurity.com \newline (443/tcp, 3129/tcp, 9443/tcp) \ML
+    SIS-CTR-n \newline (any high-numbered port) & DSO external-facing DNS server \newline (53/tcp, 53/udp) \LL
+}
+
+
+\section{SIS on TN}
+
+\end{document}

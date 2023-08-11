@@ -1,0 +1,4 @@
+#!/usr/bin/env -S sh -euxo pipefail
+CTR=$(podman run -d --rm -v "$(readlink -f $1):/crbuild:z" --tmpfs=/tmp:rw,nosuid,nodev,mode=1777 browser-builder sleep 999999999)
+podman exec $CTR sh -c "cd /crbuild && fetch --nohooks chromium && gclient sync"
+podman stop $CTR

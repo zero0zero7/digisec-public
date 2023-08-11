@@ -1,0 +1,29 @@
+#!/bin/sh -eux
+
+# Builds chromium
+#
+# parameters: VERSION
+# This script is run inside the browser-builder container.
+
+cd /crbuild/src
+git fetch origin $1
+
+# Abandon local modifications (!)
+git reset --hard HEAD
+git checkout $1
+
+# as we are building as "root" within the container
+sed -i "s/'tar', 'mxf', tarball, /'tar', 'mxf', tarball, '--no-same-owner', /g" /crbuild/src/build/linux/sysroot_scripts/install-sysroot.py
+
+# update deps
+gclient sync -D
+./build/install-build-deps.sh --no-prompt --no-chromeos-fonts --nacl
+
+# fixup sources
+chmod +x third_party/node/linux/node-linux-x64/bin/node
+
+mkdir -p /tmp/out
+ln -s /tmp/out out/Default
+
+gn gen out/Default --args="is_official_build=true chrome_pgo_phase=0 is_debug=false symbol_level=0 v8_symbol_level=0 blink_symbol_level=0"
+autoninja -C out/Default chrome

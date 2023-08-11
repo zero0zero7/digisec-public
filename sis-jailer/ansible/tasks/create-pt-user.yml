@@ -1,0 +1,56 @@
+---
+- name: Create test PT user
+  ansible.builtin.user:
+    name: "{{ item.key }}"
+    home: "/home/{{ item.key }}"
+    shell: /usr/bin/rbash
+    seuser: user_u
+    generate_ssh_key: true
+    ssh_key_type: rsa
+    ssh_key_bits: 4096
+    ssh_key_comment: "ansible-generated for {{ item.key }} on {{ ansible_hostname }}"
+  register: user
+
+- name: Save ssh pubkey for sis-vas
+  connection: local
+  become: false
+  ansible.builtin.copy:
+    dest: "{{ ssh_key_dir }}/{{ user.name }}.pub"
+    content: "{{ user.ssh_public_key }}"
+    mode: '0644'
+
+- name: Create restrictive bash profile
+  ansible.builtin.copy:
+    dest: "{{ user.home }}/.bash_profile"
+    content: |
+      readonly PATH=$HOME/.local/bin
+      export PATH
+    attributes: +i
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+
+- name: Create directory structure for PT user
+  ansible.builtin.file:
+    path: "{{ user.home }}/.local/bin"
+    state: directory
+    recurse: true
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: '0555'
+
+- name: Create launch script
+  ansible.builtin.copy:
+    dest: "{{ user.home }}/.local/bin/start"
+    content: |
+      #!/usr/bin/env bash
+      cat <(echo "start_ptbrowser") - | ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no browsers@192.168.122.98
+    owner: "{{ user.name }}"
+    group: "{{ user.group }}"
+    mode: '0555'
+
+- name: Add SSH authorized key
+  ansible.posix.authorized_key:
+    user: "{{ user.name }}"
+    key: "{{ item.value }}"
+    key_options: restrict,pty,command="start"
+...

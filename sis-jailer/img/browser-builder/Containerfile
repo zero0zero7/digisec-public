@@ -1,0 +1,33 @@
+FROM docker.io/library/ubuntu:bionic
+
+RUN apt update \
+    && apt -y upgrade \
+    && apt -y install \
+    git \
+    wget \
+    python3.8 \
+    python3-pip \
+    sudo \
+    lsb-release \
+    vim \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN rm /usr/bin/python3
+RUN ln -s /usr/bin/python3.8 /usr/bin/python3
+
+RUN python3 -mpip install jsonschema==3.0.2 importlib-metadata
+
+RUN mkdir -p /crbuild
+
+RUN git clone https://chromium.googlesource.com/chromium/tools/depot_tools.git /depot_tools
+ENV PATH=/depot_tools:$PATH
+
+COPY install-build-deps.sh /tmp/install-build-deps.sh
+RUN chmod 755 /tmp/install-build-deps.sh
+RUN /tmp/install-build-deps.sh --no-prompt --no-chromeos-fonts --nacl
+RUN rm /tmp/install-build-deps.sh
+
+RUN mkdir -p /opt/builder
+COPY build-chromium /opt/builder/build-chromium
+
+WORKDIR /crbuild

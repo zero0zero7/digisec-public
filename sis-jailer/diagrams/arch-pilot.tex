@@ -1,0 +1,310 @@
+\documentclass[10pt,a4paper]{article}
+\usepackage{geometry}
+\usepackage{graphicx}
+\usepackage{helvet}
+
+\usepackage{epstopdf}
+\usepackage{tikz}
+\usetikzlibrary{calc, chains, positioning, shadings, shadows, shapes.arrows}
+
+\usepackage{ctable}
+
+\renewcommand{\familydefault}{\sfdefault}
+
+% Styles for interfaces and edge labels
+\tikzset{%
+  interface/.style={draw, rectangle, rounded corners, font=\LARGE\sffamily},
+  ethernet/.style={interface, fill=yellow!50},% ethernet interface
+  serial/.style={interface, fill=green!70},% serial interface
+  speed/.style={sloped, anchor=south, font=\large\sffamily},% line speed at edge
+  route/.style={draw, shape=single arrow, single arrow head extend=4mm,
+    minimum height=1.7cm, minimum width=3mm, white, fill=blue!20,
+    drop shadow={opacity=.8, fill=blue!50!black}, font=\tiny}% inroute / outroute arrows
+}
+\newcommand*{\shift}{1.3cm}% For placing the arrows later
+
+
+\begin{document}
+
+\title{Proposed details for SIS PILOT}
+\maketitle{}
+
+The proposed external-facing details for the SIS Pilot.
+
+Note: this document should be read in conjunction with \emph{Proposed details for SIS deployment}.
+
+\section{SIS Pilot on DSNET}
+
+\subsection{Network logical architecture}
+
+\begin{figure}[h]
+\centering
+\scalebox{0.8}{
+\begin{tikzpicture}[node distance=4cm]
+    \node (DSN) [
+        label=left:DSNET clients
+    ] {\includegraphics{3015_eps/terminal}};
+
+    \node (DSNFW) [
+        right of=DSN
+    ] {\includegraphics{3015_eps/firewall}};
+
+    \node [
+        align=center,
+        anchor=north
+    ] at (DSNFW.south) {Permit from DSN\\Deny to DSN\\SIS HTTPS only};
+
+    \node (DSN_SW) [
+        right of=DSNFW,
+        label=right:DSNET TOR
+    ] {\includegraphics{3015_eps/workgroup_switch}};
+
+    \node (SIS_GW1) [
+        below of=DSNFW,
+        label=right:SIS-Pilot-1
+    ] {\includegraphics{3015_eps/standard_host}};
+
+    \node (SIS_INT1) [
+        below of=SIS_GW1,
+        yshift=15mm,
+        label=right:TOR
+    ] {\includegraphics{3015_eps/workgroup_switch}};
+
+    \node (SIS_DMZ_a) [coordinate, at=(SIS_GW1), xshift=-1cm, yshift=1cm] {};
+    \node (SIS_DMZ_b) [coordinate, at=(SIS_GW1), xshift=-1cm, yshift=-1cm] {};
+    \node (SIS_DMZ_c) [coordinate, at=(SIS_GW1), xshift=8cm, yshift=-1cm] {};
+    \node (SIS_DMZ_d) [coordinate, at=(SIS_GW1), xshift=8cm, yshift=1cm, label=below left:SIS DMZ (RT)] {};
+    \draw [-,thick,gray] (SIS_DMZ_a) -- (SIS_DMZ_b) -- (SIS_DMZ_c) -- (SIS_DMZ_d) -- (SIS_DMZ_a);
+
+    \node (DSN_ADM_FW) [
+        below of=DSN
+    ] {\includegraphics{3015_eps/firewall}};
+
+    \node [
+        align=center,
+        anchor=east
+    ] at (DSN_ADM_FW.west) {Permit SIS administrative\\clients only};
+
+    \draw [-, thick, gray]
+    (DSN) -- (DSN_ADM_FW) -- (SIS_GW1);
+
+    \node (SIS_INT) [
+        below=of SIS_INT1,
+        yshift=20mm,
+        label=center:Menlo
+    ] {\includegraphics{3015_eps/cloud}};
+
+    \draw [-, thick, black]
+    (DSN) -- (DSNFW) -- (DSN_SW) -- (SIS_GW1) -- (SIS_INT1) -- (SIS_INT);
+
+\end{tikzpicture}
+}
+\caption{SIS logical architecture on DSNET.}
+\end{figure}
+
+
+\subsection{Host overview}
+
+\subsubsection{SIS-Pilot-1}
+
+This is the DSNET client-facing pilot machine.
+
+\subsection{IP assignments}
+
+\begin{table}[h!]
+    \caption{Requested IP assignments}
+    \begin{tabular}{l l l}
+        Host & Assignment & Externally routable? \\
+        \hline
+        SIS-Pilot-1 & IP1 (to be assigned) & Y \\
+    \end{tabular}
+\end{table}
+
+
+\subsection{DNS records}
+
+\begin{table}[h!]
+    \caption{Proposed DNS names}
+    \begin{tabular}{l l l}
+        Hostname & Record type & Data \\
+        \hline
+        pilot.sis.dsnet.dso.root. & A & \emph{IP1} \\
+    \end{tabular}
+\end{table}
+
+A zonefile will be included here when the names and data are confirmed.
+
+\subsection{Firewall access}
+
+\ctable[
+    caption=Routes to be permitted,
+    pos=h!
+]{p{50mm} p{95mm}}{}{
+    \FL
+    Source & Dest \ML
+    DSNET end-user clients \newline (any high-numbered port) & IP1 \newline (80/tcp, 443/tcp) \ML
+    Designated administrative clients \newline (any high-numbered port) & IP1 \newline (22/tcp) \ML
+    SIS-Pilot-1 \newline (any high-numbered port) & 13.229.252.0/25 \newline (443/tcp, 3129/tcp, 9443/tcp) \ML
+    SIS-Pilot-1 \newline (any high-numbered port) & pac.menlosecurity.com \newline (443/tcp) \ML
+    SIS-Pilot-1 \newline (any high-numbered port) & *proxy0-418f1090cac5bb897d919b628e87950c.menlosecurity.com \newline (443/tcp, 3129/tcp, 9443/tcp) \ML
+    SIS-Pilot-1 \newline (any high-numbered port) & *proxy1-418f1090cac5bb897d919b628e87950c.menlosecurity.com \newline (443/tcp, 3129/tcp, 9443/tcp) \ML
+    SIS-Pilot-1 \newline (any high-numbered port) & DSO external-facing DNS server \newline (53/tcp, 53/udp) \LL
+}
+
+\subsection{TLS certificates}
+
+TLS certificates with names specified in Table~\ref{tab:dsnet:tls} are required to deploy the pilot service.
+These certificates \emph{must} be rooted in a CA trusted by SIS Pilot clients.
+
+\ctable[
+    caption=TLS certificates required,
+    label=tab:dsnet:tls,
+    pos=h!
+]{l l}{}{
+    \FL
+    Subject name & Details \ML
+    pilot.sis.dsnet.dso.root & SAN: pilot.sis (to check) \LL
+}
+
+
+\section{SIS Pilot on TN}
+
+\subsection{Network logical architecture}
+
+\begin{figure}[h]
+\centering
+\scalebox{0.8}{
+\begin{tikzpicture}[node distance=4cm]
+    \node (DSN) [
+        label=left:TN clients
+    ] {\includegraphics{3015_eps/terminal}};
+
+    \node (DSNFW) [
+        right of=DSN
+    ] {\includegraphics{3015_eps/firewall}};
+
+    \node [
+        align=center,
+        anchor=north
+    ] at (DSNFW.south) {SIS HTTPS only};
+
+    \node (DSN_SW) [
+        right of=DSNFW,
+        label=right:TN TOR
+    ] {\includegraphics{3015_eps/workgroup_switch}};
+
+    \node (SIS_GW1) [
+        below of=DSNFW,
+        label=right:SIS-Pilot-2
+    ] {\includegraphics{3015_eps/standard_host}};
+
+    \node (SIS_INT1) [
+        below of=SIS_GW1,
+        yshift=15mm,
+        label=right:TOR
+    ] {\includegraphics{3015_eps/workgroup_switch}};
+
+    \node (SIS_DMZ_a) [coordinate, at=(SIS_GW1), xshift=-1cm, yshift=1cm] {};
+    \node (SIS_DMZ_b) [coordinate, at=(SIS_GW1), xshift=-1cm, yshift=-1cm] {};
+    \node (SIS_DMZ_c) [coordinate, at=(SIS_GW1), xshift=8cm, yshift=-1cm] {};
+    \node (SIS_DMZ_d) [coordinate, at=(SIS_GW1), xshift=8cm, yshift=1cm, label=below left:SIS DMZ (RT)] {};
+    \draw [-,thick,gray] (SIS_DMZ_a) -- (SIS_DMZ_b) -- (SIS_DMZ_c) -- (SIS_DMZ_d) -- (SIS_DMZ_a);
+
+    \node (DSN_ADM_FW) [
+        below of=DSN
+    ] {\includegraphics{3015_eps/firewall}};
+
+    \node [
+        align=center,
+        anchor=east
+    ] at (DSN_ADM_FW.west) {Permit SIS administrative\\clients only};
+
+    \draw [-, thick, gray]
+    (DSN) -- (DSN_ADM_FW) -- (SIS_GW1);
+
+    \node (SIS_Menlo) [
+        below=of SIS_INT1,
+        yshift=20mm,
+        label=center:Menlo
+    ] {\includegraphics{3015_eps/cloud}};
+
+    \node (SIS_INT) [
+        right=of SIS_Menlo,
+        label=center:Internet
+    ] {\includegraphics{3015_eps/cloud}};
+
+    \draw [-, thick, black]
+    (DSN) -- (DSNFW) -- (DSN_SW) -- (SIS_GW1) -- (SIS_INT1) -- (SIS_INT)
+    (SIS_INT1) -- (SIS_Menlo);
+
+\end{tikzpicture}
+}
+\caption{SIS logical architecture on Technet.}
+\end{figure}
+
+
+\subsection{Host overview}
+
+\subsubsection{SIS-Pilot-2}
+
+This is the TN client-facing pilot machine.
+It will be used for testing and building.
+
+\subsection{IP assignments}
+
+\begin{table}[h!]
+    \caption{Requested IP assignments}
+    \begin{tabular}{l l l}
+        Host & Assignment & Externally routable? \\
+        \hline
+        SIS-Pilot-2 & IP1 (to be assigned) & Y \\
+    \end{tabular}
+\end{table}
+
+
+\subsection{DNS records}
+
+The DNS zone is to be confirmed.
+
+\begin{table}[h!]
+    \caption{Proposed DNS names}
+    \begin{tabular}{l l l}
+        Hostname & Record type & Data \\
+        \hline
+        test.sis & A & \emph{IP1} \\
+    \end{tabular}
+\end{table}
+
+A zonefile will be included here when the names and data are confirmed.
+
+\subsection{Firewall access}
+
+\ctable[
+    caption=Routes to be permitted,
+    pos=h!
+]{p{50mm} p{95mm}}{}{
+    \FL
+    Source & Dest \ML
+    TN clients \newline (any high-numbered port) & IP1 \newline (80/tcp, 443/tcp) \ML
+    Designated administrative clients \newline (any high-numbered port) & IP1 \newline (22/tcp) \ML
+    SIS-Pilot-2 (any port) & Internet (any port) \LL
+}
+
+\subsection{TLS certificates}
+
+TLS certificates with names specified in Table~\ref{tab:dsnet:tls} are required to deploy the pilot service.
+These certificates \emph{must} be rooted in a CA trusted by TN clients.
+
+Note: the Subject name should be modified when the DNS zone is known!
+
+\ctable[
+    caption=TLS certificates required,
+    label=tab:dsnet:tls,
+    pos=h!
+]{l l}{}{
+    \FL
+    Subject name & Details \ML
+    test.sis &  \LL
+}
+
+\end{document}

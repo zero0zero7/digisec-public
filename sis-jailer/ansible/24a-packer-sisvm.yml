@@ -1,0 +1,11 @@
+- name: Build SIS VAS VM
+  hosts: sis1
+  tasks:
+    - name: Remove old artefacts
+      ansible.builtin.file:
+        path: "{{ sis_src | mandatory }}/packer/sisvm/img"
+        state: absent
+
+    - name: Build VM (packer)
+      ansible.builtin.make:
+        chdir: "{{ sis_src }}/packer/sisvm"
